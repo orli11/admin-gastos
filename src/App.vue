@@ -6,7 +6,6 @@
   import Modal from './components/Modal.vue';
   import { generarId } from './helpers'
   import iconoNuevoGasto from './assets/img/nuevo-gasto.svg';
-import GastoVue from './components/Gasto.vue';
 
 
   const modal = reactive({
@@ -87,7 +86,7 @@ import GastoVue from './components/Gasto.vue';
         <Gasto
           v-for="gasto in gastos"
           :key="gasto.id"
-          gasto="gasto"
+          :gasto="gasto"
         />
       </div>
 
