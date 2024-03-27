@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, reactive } from 'vue'
+  import { ref, reactive, watch} from 'vue'
   import Presupuesto from './components/Presupuesto.vue';
   import ControlPresupuesto from './components/ControlPresupuesto.vue';
   import Gasto from './components/Gasto.vue'
@@ -18,11 +18,22 @@
         categoria: '',
         id: null,
         fecha: Date.now()
-    })
-  
+  })
+
   const gastos = ref([]) //Arreglo vacío
+
+  watch(gastos, () => {
+    const totalGastado = gastos.value.reduce((total, gasto) => gasto.cantidad + total, 0)
+    gastado.value = totalGastado
+
+    disponible.value = presupuesto.value - totalGastado
+  }, {
+    deep: true
+  })
+  
   const presupuesto = ref(0)
   const disponible = ref(0)
+  const gastado = ref(0)
 
   const definirPresupuesto = (cantidad) => {
     presupuesto.value = cantidad
@@ -59,6 +70,12 @@
       fecha: Date.now()
     })
   }
+
+  const seleccionarGasto = id => {
+    const gastoEditar = gastos.value.filter(gasto => gasto.id === id)[0]
+    Object.assign(gasto, gastoEditar)
+    mostrarModal()
+  }
 </script>
 
 <template>
@@ -76,6 +93,7 @@
           v-else
           :presupuesto="presupuesto"
           :disponible="disponible"
+          :gastado="gastado"
         />
       </div>
     </header>
@@ -89,6 +107,7 @@
           v-for="gasto in gastos"
           :key="gasto.id"
           :gasto="gasto"
+          @seleccionar-gasto="seleccionarGasto"
         />
       </div>
 
@@ -105,6 +124,7 @@
         @ocultar-modal="ocultarModal"
         @guardar-gasto="guardarGasto"
         :modal="modal"
+        :disponible="disponible"
         v-model:nombre="gasto.nombre"
         v-model:cantidad="gasto.cantidad"
         v-model:categoria="gasto.categoria"
