@@ -1,5 +1,5 @@
 <script setup >
-    import { ref } from 'vue'
+    import { computed, ref } from 'vue'
     import Alerta from './Alerta.vue'
     import cerrarModal from '../assets/img/cerrar.svg'
 
@@ -25,12 +25,18 @@
         disponible: {
             type: Number,
             required: true
+        },
+        id: {
+            type: [String, null],
+            required: true
         }
     })
 
+    const old = props.cantidad
+
     const agregarGasto = () => {
         // Validar que no haya campos vacíos 
-       const { nombre, cantidad, categoria, disponible } = props
+       const { nombre, cantidad, categoria, disponible, id} = props
        if([nombre, cantidad, categoria].includes('')) {
             error.value = 'Todos los campos son obligatorios'
 
@@ -50,17 +56,32 @@
        }
 
        // Validar que lo disponible no exceda del presupuesto
-       if (cantidad > disponible) {
+       if(id) { //Validar un gasto que estamos editando
+        //Tomar en cuenta el gasto ya realizado
+            if ( cantidad > old + disponible ) {
+                error.value = 'Excediste el presupuesto'
+                setTimeout(() => {
+                    error.value = ''
+                }, 3000)
+                return 
+            }
+       } else {
+        if (cantidad > disponible) {
             error.value = 'Excediste el presupuesto'
 
             setTimeout(() => {
                 error.value = ''
             }, 3000)
             return 
+        }
        }
        emit('guardar-gasto')
         
     }
+
+    const isEditing = computed(() => {
+        return props.id
+    })
 </script>
 
 <template>
@@ -80,7 +101,7 @@
                 class="nuevo-gasto"
                 @submit.prevent="agregarGasto"
             >
-                <legend>Añadir gasto</legend>
+                <legend>{{ id ? 'Guardar cambios' : 'Añadir gasto' }}</legend>
 
                 <Alerta v-if="error">{{ error }}</Alerta>
 
@@ -123,8 +144,16 @@
                     </select>
                 </div>
 
-                <input type="submit" value="Añadir Gastos">
+                <input type="submit" :value="[id ? 'Guardar cambios' : 'Añadir cambios']">
             </form>
+
+            <button
+                type="button"
+                class="btn-eliminar"
+                v-if="isEditing"
+            >
+                Eliminiar gasto
+            </button>
        </div>
     </div>
 </template>
@@ -192,5 +221,18 @@
 .campo {
     display: grid;
     gap: 2rem;
+}
+
+.btn-eliminar {
+    padding: 1rem;
+    width: 100%;
+    background-color: #ef4444;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--blanco);
+    border: none;
+    border-radius: 1rem;
+    margin-top: 10rem;
+    cursor: pointer;
 }
 </style>
