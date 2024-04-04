@@ -4,7 +4,7 @@
     import cerrarModal from '../assets/img/cerrar.svg'
 
     const error = ref('')
-    const emit = defineEmits(['ocultar-modal', 'guardar-gasto', 'update:nombre', 'update:cantidad', 'update:categoria'])
+    const emit = defineEmits(['ocultar-modal', 'guardar-gasto', 'eliminar-gasto', 'update:nombre', 'update:cantidad', 'update:categoria'])
     const props = defineProps({
         modal: {
             type: Object,
@@ -151,6 +151,7 @@
                 type="button"
                 class="btn-eliminar"
                 v-if="isEditing"
+                @click="$emit('eliminar-gasto')"
             >
                 Eliminiar gasto
             </button>
